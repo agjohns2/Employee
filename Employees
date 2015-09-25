@@ -1,0 +1,272 @@
+/**
+ * 
+ * @author Andrew Johnson
+ * Project 5, Employees
+ * CSC 116, summer 2015
+ */
+ 
+import java.util.*;
+import java.io.*;
+
+/**
+ * starts program
+ */
+public class Employees {
+    
+    /**
+     *
+     * The main method creates a file object from the file name
+     * listed in the command line. It counts the lines in the file
+     * and produces an array of that size. It then sends the contents
+     * of each line to the Employee class, authored by the instructor, 
+     * to have an employee object created and returned. The array 
+     * is filled with those objects and is used throughout the rest of 
+     * the program.
+     *
+     * @param args array of command line arguments
+     *
+     */
+    public static void main(String[] args) {
+
+        try{
+            Scanner input = new Scanner(new File(args[0]));
+            Scanner inputLineCounter = new Scanner(new File(args[0]));
+  
+            int counter = 0;
+            while(inputLineCounter.hasNextLine()) {
+                counter++;
+                inputLineCounter.nextLine();   
+            }
+            
+            Employee[] employees = new Employee[counter];
+            
+            for(int i = 0; i < employees.length; i++) {
+                String name = input.next();
+                String department = input.next();
+                int year = input.nextInt();
+                employees[i] = new Employee(name, department, year);
+            }
+            
+            decision(employees);
+        
+        }catch (FileNotFoundException e) {
+            System.out.println("File not found");
+        } 
+       
+        
+    }
+    
+    /**
+     * This method is used to prompt the user for their desired computation and output
+     *
+     * @param employees array of employee objects containing name, department, and beginning year
+     */
+    public static void decision(Employee[] employees){
+        
+        Scanner console = new Scanner(System.in);
+        
+        String option = "";
+        while(!(option.equalsIgnoreCase("s")) ||
+            !(option.equalsIgnoreCase("l")) ||
+            !(option.equalsIgnoreCase("d")) ||
+            !(option.equalsIgnoreCase("y")) ||
+            !(option.equalsIgnoreCase("q"))) {
+
+            System.out.print("Employee Information - Please enter an option below \n" +
+            "\nS - Display statistics \n" +
+            "L - List all employees \n" +
+            "D - List employees by department \n" +
+            "Y - List employees by year \n" +
+            "Q - Quit the program \n" +
+            "\nOption: ");
+            
+            option = console.next();
+            
+            if(option.equalsIgnoreCase("q")) {
+                end();
+                break;
+            }else if(option.equalsIgnoreCase("l")) {
+                listAll(employees);
+            }else if(option.equalsIgnoreCase("d")) {
+                listByDepartment(console, employees);
+            }else if(option.equalsIgnoreCase("y")) {
+                listByYear(console, employees);
+            }else if(option.equalsIgnoreCase("s")) {
+                displayStatistics(employees);
+            }
+        }
+              
+    }
+    
+    /**
+     * This method counts the number of employees in each department. Then, separately, counts 
+     * each employee that started in each ten year increment. Once counted, the values are printed
+     * to the console.
+     *
+     * @param employees array of employee objects containing name, department, and beginning year
+     */
+    public static void displayStatistics(Employee[] employees) {
+        
+        int admin = 0;
+        int manufacturing = 0;
+        int sales = 0;
+        int sixtyCount = 0;
+        int seventyCount = 0;
+        int eightyCount = 0;
+        int ninetyCount = 0;
+        int singlesCount = 0;
+        int teensCount = 0;
+        
+        String department = null;
+        int year = 0;
+        for(int i = 0; i < employees.length; i++) {
+       
+            department = employees[i].getDepartment();
+            if(department.equalsIgnoreCase("administration")){
+                admin++;
+            }else if(department.equalsIgnoreCase("manufacturing")){
+                manufacturing++;
+            }else if(department.equalsIgnoreCase("sales")){
+                sales++;
+            }
+            
+            department = null;
+            
+            year = employees[i].getYear();
+            if(year >= 1960 && year < 1970) {
+                sixtyCount++;
+            }else if(year >= 1970 && year < 1980) {
+                seventyCount++;
+            }else if(year >= 1980 && year < 1990) {
+                eightyCount++;
+            }else if(year >= 1990 && year < 2000) {
+                ninetyCount++;
+            }else if(year >= 2000 && year < 2010) {
+                singlesCount++;
+            }else if(year >= 2010 && year < 2020) {
+                teensCount++; 
+            }
+        }                    
+        
+        System.out.println("Number of Employees: " + employees.length);
+        System.out.println("By Department");
+        System.out.println("   Administration: " + admin);
+        System.out.println("   Manufacturing: " + manufacturing);
+        System.out.println("   Sales: " + sales);
+        System.out.println("By Year");
+        System.out.println("   1960-69: " + sixtyCount);
+        System.out.println("   1970-79: " + seventyCount);
+        System.out.println("   1980-89: " + eightyCount);
+        System.out.println("   1990-99: " + ninetyCount);
+        System.out.println("   2000-09: " + singlesCount);
+        System.out.println("   2010-19: " + teensCount); 
+
+        decision(employees);        
+    
+    }
+    
+    /**
+     * This method lists each employee, their department, and their start year in a
+     * table.
+     *
+     * @param employees array of employee objects containing name, department, and beginning year
+     */
+    public static void listAll(Employee[] employees) {
+        
+        System.out.print("Name            Department      Year\n" +
+                         "----            ----------      ----\n");
+        for(int i = 0; i < employees.length; i++) {
+            System.out.printf("%-16s", employees[i].getName());
+            System.out.printf("%-16s", employees[i].getDepartment());
+            System.out.printf("%-8d\n", employees[i].getYear());
+        }
+        
+        decision(employees);
+    
+    
+    }
+    
+    /**
+     * This method allows the user to designate which department they would like to list. 
+     * The method then prints each employee, and the year that they started, in that department.
+     *
+     * @param employees array of employee objects containing name, department, and beginning year
+     */
+    public static void listByDepartment(Scanner console, Employee[] employees) {
+        
+        System.out.print("Enter department (A-dministration, M-anufacturing, S-ales ): ");
+        String department = console.next();
+        
+        if(!(department.equalsIgnoreCase("a")) &&
+        !(department.equalsIgnoreCase("m")) &&
+        !(department.equalsIgnoreCase("s"))) {
+            decision(employees);
+        }
+        
+        if(department.equalsIgnoreCase("a")) {
+            System.out.println("Employees in the Administration department:");
+            for(int i = 0; i < employees.length; i++) {
+                if((employees[i].getDepartment()).equalsIgnoreCase("administration")) {
+                    System.out.printf("%-8d", employees[i].getYear());
+                    System.out.printf("%-8s\n", employees[i].getName());
+                }
+            }
+        }
+        
+        if(department.equalsIgnoreCase("m")) {
+            System.out.println("Employees in the Manufacturing department:");
+            for(int j = 0; j < employees.length; j++) {
+                if((employees[j].getDepartment()).equalsIgnoreCase("manufacturing")) {
+                    System.out.printf("%-8d", employees[j].getYear());
+                    System.out.printf("%-8s\n", employees[j].getName());
+                }
+            }
+        }
+        
+        if(department.equalsIgnoreCase("s")) {
+            System.out.println("Employees in the Sales department:");
+            for(int k = 0; k < employees.length; k++) {
+                if((employees[k].getDepartment()).equalsIgnoreCase("sales")) {
+                    System.out.printf("%-8d", employees[k].getYear());
+                    System.out.printf("%-8s\n", employees[k].getName());
+                }
+            }
+        }
+        
+        decision(employees);
+        
+    }
+
+    /**
+     * This method prompts the user for a year and then prints each employee, and their department,
+     * to the console. 
+     *
+     * @param employees array of employee objects containing name, department, and beginning year
+     */
+    public static void listByYear(Scanner console, Employee[] employees) {
+        
+        System.out.print("Enter employment year (1960-2019): ");
+        int specificYear = console.nextInt();
+        System.out.println();
+        System.out.println("Employees with employment date: " + specificYear);
+        
+        for(int i = 0; i < employees.length; i++) {
+            if((employees[i].getYear()) == specificYear) {
+                System.out.printf("%-16s", employees[i].getDepartment());
+                System.out.printf("%-8s\n", employees[i].getName());
+            }
+        }        
+        
+        decision(employees);
+    }
+    
+    /**
+     * ends program
+     */
+    public static void end() {
+        System.out.println("Goodbye!");
+    }
+}   
+    
+        
+    
